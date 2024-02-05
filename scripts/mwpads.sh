@@ -25,7 +25,6 @@ if [[ ${!ADS_HOSTS[@]} =~ $CHOICE ]]; then
 fi
 
 if [[ $CHOICE == "Upload Certificates" ]]; then
-
     read -p "Would you like to download your SSH certificates first? If no, proceed to upload. (y/n)"
 
     if [[ $REPLY =~ ^[Yy]|yes$ ]]; then
@@ -70,9 +69,9 @@ login_expect
 function upload_certs {
 for ADS_HOST in "${!ADS_HOSTS[@]}"; do
     local ADS_FLOATING_IP="${ADS_HOSTS[$ADS_HOST]}"
-    echo "Uploading certificates to ${ADS_HOST}(${ADS_FLOATING_IP})..."
+    echo "Preparing to upload certificates to ${ADS_HOST}(${ADS_FLOATING_IP})..."
     COMMAND="rsync -a --include \"${USER}-wpaas*\" --exclude \"*\" \"${SSH_CERTS_DIR}/\" \"${USER}@${USER}#dc1.corp.gd@${ADS_FLOATING_IP}@${PSMP_SERVER}:~/.ssh/\""
-    login_expect
+    login_expect && echo "Certificates Uploaded!"
 done
 }
 
@@ -109,7 +108,7 @@ function extract_certs {
     mkdir -p ${SSH_CERTS_DIR}
     unzip -qq -o ${SSH_CERTS_DIR}/certs.zip -d ${SSH_CERTS_DIR}/
     rm ${SSH_CERTS_DIR}/certs.zip
-    chmod 600 ${SSH_CERTS_DIR}/${USER}-*
+    chmod 600 ${SSH_CERTS_DIR}/${USER}-wpaas*
 }
 
 function download_certs {
@@ -119,7 +118,7 @@ function download_certs {
 		echo "Failed to download certs"
     	echo "Is the VPN connected?"
 	    exit 1
-	fi
+    fi
 }
 
 function fetch_sso_token {
@@ -147,8 +146,8 @@ function check_binaries {
         exit 1;
     fi
 
-    if ! command -v curl &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4curl\e[0m to properly run. Please install \e[4mcurl\e[0m before continuing"
+    if ! command -v expect &> /dev/null; then
+        echo -e "WARNING: This script requires \e[4expect\e[0m to properly run. Please install \e[4expect\e[0m before continuing"
         exit 1;
     fi
 }
