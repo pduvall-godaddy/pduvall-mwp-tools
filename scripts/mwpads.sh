@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 # Script for making life easier when connecting to MWP ansible deployment servers.
-
+# Notice: You must have your .ssh/ directory set up on the ADS server before running this script./
+#
 export PSMP_SERVER=phx.psmp.dc1.ca.iam.int.gd3p.tools
-   
+
 # The location you store your SSH certs.
 export SSH_CERTS_DIR=$HOME/.ssh
 
@@ -142,12 +143,17 @@ function check_binaries {
     fi
 
     if ! command -v curl &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4curl\e[0m to properly run. Please install \e[4mcurl\e[0m before continuing"
+        echo -e "WARNING: This script requires \e[4mcurl\e[0m to properly run. Please install \e[4mcurl\e[0m before continuing"
         exit 1;
     fi
 
     if ! command -v expect &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4expect\e[0m to properly run. Please install \e[4expect\e[0m before continuing"
+        echo -e "WARNING: This script requires \e[4mexpect\e[0m to properly run. Please install \e[4mexpect\e[0m before continuing"
+        exit 1;
+    fi
+
+    if ! command -v rsync &> /dev/null; then
+        echo -e "WARNING: This script requires \e[4mrsync\e[0m to properly run. Please install \e[4mrsync\e[0m before continuing"
         exit 1;
     fi
 }
