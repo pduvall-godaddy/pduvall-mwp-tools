@@ -51,7 +51,7 @@ PS3="Select your ADS Host: "
 while true; do
     select CHOICE in "${MENU[@]}" ; do
         case $1 in 
-            *) [[ ${ADS_HOSTS[*]} =~ $1 ]] \
+            *) [[ ${ADS_HOSTS[@]} =~ $1 ]] \
                 && echo "Connecting to ${!ADS_HOSTS[$1]}" \
                 && break 2;;&
             *) break 2;;
