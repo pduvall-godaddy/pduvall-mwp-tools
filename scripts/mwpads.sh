@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
 # Script for making life easier when connecting to MWP ansible deployment servers.
-# Notice: You must have your .ssh/ directory set up on the ADS server before running this script./
 #
+# This is not meant to be used as a one-liner, if you want a one-liner try
+# something else or build something else.  You have the power.
+# This script's intention is only meant to connect to the MWP ansible deployment
+# servers and to also upload your certificates with less actions taken on the
+# users part.
+#
+# Notice: You must have your .ssh/ directory set up on the ADS server before running this script.
+#
+
 export PSMP_SERVER=phx.psmp.dc1.ca.iam.int.gd3p.tools
 
 # The location you store your SSH certs.
@@ -18,7 +26,6 @@ declare -A ADS_HOSTS=([p3plwpads01.cloud.phx3.gdg]=10.39.147.172
 function main {
 
 check_binaries
-
 build_menu
     
 if [[ ${!ADS_HOSTS[@]} =~ $CHOICE ]]; then
@@ -105,57 +112,57 @@ function login_expect {
 }
 
 function extract_certs {
-    echo "Extracting certificates into ${SSH_CERTS_DIR}/"
-    mkdir -p ${SSH_CERTS_DIR}
-    unzip -qq -o ${SSH_CERTS_DIR}/certs.zip -d ${SSH_CERTS_DIR}/
-    rm ${SSH_CERTS_DIR}/certs.zip
-    chmod 600 ${SSH_CERTS_DIR}/${USER}-wpaas*
+echo "Extracting certificates into ${SSH_CERTS_DIR}/"
+mkdir -p ${SSH_CERTS_DIR}
+unzip -qq -o ${SSH_CERTS_DIR}/certs.zip -d ${SSH_CERTS_DIR}/
+rm ${SSH_CERTS_DIR}/certs.zip
+chmod 600 ${SSH_CERTS_DIR}/${USER}-wpaas*
 }
 
 function download_certs {
-    local jwt=$1
-    echo "Downloading certificates using the sso token"
-    if ! curl -f -s https://certaccess.int.godaddy.com/generate -H "Authorization: sso-jwt ${jwt}" -o ${SSH_CERTS_DIR}/certs.zip; then
-		echo "Failed to download certs"
-    	echo "Is the VPN connected?"
-	    exit 1
-    fi
+local jwt=$1
+echo "Downloading certificates using the sso token"
+if ! curl -f -s https://certaccess.int.godaddy.com/generate -H "Authorization: sso-jwt ${jwt}" -o ${SSH_CERTS_DIR}/certs.zip; then
+    echo "Failed to download certs"
+    echo "Is the VPN connected?"
+    exit 1
+fi
 }
 
 function fetch_sso_token {
-	local jwt
-	if ! jwt=$(ssojwt); then
-		echo "Failed to get jwt token with ssojwt"
-		exit 1
-	fi
-	printf "%s" "$jwt"
+local jwt
+if ! jwt=$(ssojwt); then
+	echo "Failed to get jwt token with ssojwt"
+	exit 1
+fi
+printf "%s" "$jwt"
 }
 
 function check_binaries {
-    if ! command -v ssojwt &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4mssojwt\e[0m to properly run. Please install \e[4mssojwt\e[0m from https://github.com/gdcorp-engineering/ssojwt/releases before continuing"
-        exit 1;
-    fi
+if ! command -v ssojwt &> /dev/null; then
+    echo -e "WARNING: This script requires \e[4mssojwt\e[0m to properly run. Please install \e[4mssojwt\e[0m from https://github.com/gdcorp-engineering/ssojwt/releases before continuing"
+    exit 1;
+fi
 
-    if ! command -v unzip &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4munzip\e[0m to properly run. Please install \e[4munzip\e[0m before continuing"
-        exit 1;
-    fi
+if ! command -v unzip &> /dev/null; then
+    echo -e "WARNING: This script requires \e[4munzip\e[0m to properly run. Please install \e[4munzip\e[0m before continuing"
+    exit 1;
+fi
 
-    if ! command -v curl &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4mcurl\e[0m to properly run. Please install \e[4mcurl\e[0m before continuing"
-        exit 1;
-    fi
+if ! command -v curl &> /dev/null; then
+    echo -e "WARNING: This script requires \e[4mcurl\e[0m to properly run. Please install \e[4mcurl\e[0m before continuing"
+    exit 1;
+fi
 
-    if ! command -v expect &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4mexpect\e[0m to properly run. Please install \e[4mexpect\e[0m before continuing"
-        exit 1;
-    fi
+if ! command -v expect &> /dev/null; then
+    echo -e "WARNING: This script requires \e[4mexpect\e[0m to properly run. Please install \e[4mexpect\e[0m before continuing"
+    exit 1;
+fi
 
-    if ! command -v rsync &> /dev/null; then
-        echo -e "WARNING: This script requires \e[4mrsync\e[0m to properly run. Please install \e[4mrsync\e[0m before continuing"
-        exit 1;
-    fi
+if ! command -v rsync &> /dev/null; then
+    echo -e "WARNING: This script requires \e[4mrsync\e[0m to properly run. Please install \e[4mrsync\e[0m before continuing"
+    exit 1;
+fi
 }
 
 main; unset -f main;
